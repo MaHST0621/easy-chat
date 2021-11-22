@@ -1,4 +1,4 @@
-package com.example.easyChat.server;
+package com.example.easyChat.server.websocket;
 
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;

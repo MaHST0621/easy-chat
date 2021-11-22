@@ -1,4 +1,4 @@
-package com.example.easyChat.server;
+package com.example.easyChat.server.websocket;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
