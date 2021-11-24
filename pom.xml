@@ -44,6 +44,12 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.50</version>
+        </dependency>
+
         <!-- junit包依赖   -->
         <dependency>
             <groupId>junit</groupId>

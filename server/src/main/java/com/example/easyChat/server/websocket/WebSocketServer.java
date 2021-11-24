@@ -1,5 +1,9 @@
 package com.example.easyChat.server.websocket;
 
+import com.example.easyChat.common.action.ActionEnum;
+import com.example.easyChat.common.event.EventPool;
+import com.example.easyChat.server.connection.ConnectionPool;
+import com.example.easyChat.server.event.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -25,6 +29,7 @@ public class WebSocketServer {
 
     public void start(final short port) {
         this.init();
+        this.registeEvent();
         try {
             ChannelFuture future = bootstrap.bind(port).sync();
             System.out.println("Websocket started.Listen on " + port + "!");
@@ -35,6 +40,15 @@ public class WebSocketServer {
     }
     public WebSocketServer(final String Path) {
         this.contextPath = Path;
+    }
+
+    private void registeEvent() {
+        //注册事件
+        EventPool.getInstance().registe(ActionEnum.ACTION_LOGIN_REQ.getAction(), new LoginEvent());
+        EventPool.getInstance().registe(ActionEnum.ACTION_FETCH_ONLINE_USER_REQ.getAction(), new FetchOnlineUsersEvent());
+        EventPool.getInstance().registe(ActionEnum.ACTION_SEND_MESSAGE_REQ.getAction(), new SendMessageEvent());
+        EventPool.getInstance().registe(ActionEnum.ACTION_RECEIVE_MESSAGE_Notify_ACK.getAction(), new RecieveMessageEvent());
+        EventPool.getInstance().registe(ActionEnum.ACTION_FETCH_HISTORY_MESSAGE_REQ.getAction(), new FetchHistoryMessageEvent());
     }
 
     private void init() {
@@ -72,6 +86,7 @@ public class WebSocketServer {
         @Override
         public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
             System.out.println("Removed connection from address:" + ctx.channel().remoteAddress());
+            ConnectionPool.getInstance().removeByChannelId(ctx.channel().id().asLongText());
         }
 
         @Override

@@ -1,5 +1,7 @@
 package com.example.easyChat.client.websocket;
 
+import com.alibaba.fastjson.JSONObject;
+import com.example.easyChat.common.action.Action;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -62,6 +64,20 @@ public class WebSocketClient {
                                 );
                     }
                 });
+    }
+
+    public void send(Action action,String payload) {
+        if (action == null) {
+            System.out.println("empty action");
+            return;
+        }
+
+        if (payload == null || payload.isEmpty()) {
+            System.out.println("empty payload");
+            return;
+        }
+        action.setPayload(payload);
+        channel.writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(action)));
     }
 
     private class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
