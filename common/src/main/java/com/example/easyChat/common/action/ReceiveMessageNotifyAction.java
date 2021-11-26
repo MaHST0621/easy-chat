@@ -18,9 +18,9 @@ public class ReceiveMessageNotifyAction extends Action{
 
     private Long fromUserId;
 
-    private String messageId;
+    private Long messageId;
 
-    private String messageType;
+    private Byte messageType;
 
     private String message;
 }

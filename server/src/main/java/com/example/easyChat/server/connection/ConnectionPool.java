@@ -3,8 +3,9 @@ package com.example.easyChat.server.connection;
 import io.netty.channel.Channel;
 import org.springframework.util.CollectionUtils;
 
-import java.util.HashSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class ConnectionPool {
     private static final ConnectionPool INSTANCE = new ConnectionPool();
@@ -72,5 +73,38 @@ public class ConnectionPool {
                 channels.remove(channelId);
             });
         }
+    }
+
+    public List<Long> userIdList() {
+        List<Long> ids = new ArrayList<>();
+        Enumeration<Long> enumeration = users.keys();
+        while (enumeration.hasMoreElements()) {
+            Long id = enumeration.nextElement();
+            ids.add(id);
+        }
+        return ids;
+    }
+
+    public Long getUserIdByChannel(String channelId) {
+        Long userId = userIds.get(channelId);
+        if (userId == null) {
+            System.out.println("can not find userId by channel: " + channelId);
+            return null;
+        }
+        return userId;
+    }
+
+    public List<Channel> getChannels(Long userId) {
+        if ( null == userId ) {
+            System.out.println("userId is empty!");
+            return null;
+        }
+        HashSet<String> channelIds = users.get(userId);
+        if ( CollectionUtils.isEmpty(channelIds) ) {
+            System.out.println("can not find channelIds with userId: " + userId);
+            return null;
+        }
+        // TODO: 找不到对应的channelId的时候，会返回空
+        return channelIds.stream().map(channelId -> channels.get(channelId)).collect(Collectors.toList());
     }
 }

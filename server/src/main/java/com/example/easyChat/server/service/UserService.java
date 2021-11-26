@@ -48,4 +48,14 @@ public class UserService {
 
         return users.get(0);
     }
+
+    public List<User> listUsers(List<Long> userIds) {
+        Example example = new Example(User.class);
+        example.createCriteria().andIn(User.ID,userIds);
+        return userMapper.selectByExample(example);
+    }
+
+    public User getUserById(Long fromUserId) {
+        return userMapper.selectByPrimaryKey(fromUserId);
+    }
 }

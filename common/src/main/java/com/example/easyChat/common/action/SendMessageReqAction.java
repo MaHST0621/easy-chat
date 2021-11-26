@@ -18,7 +18,7 @@ public class SendMessageReqAction extends Action{
 
     private Long fromUserId;
 
-    private String messageType;
+    private Byte messageType;
 
     private String message;
 }

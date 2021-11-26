@@ -14,5 +14,5 @@ public class ReceiveMessageNotifyAckAction extends Action{
         this.setRequestId(UUID.randomUUID().toString());
     }
 
-    private String messageId;
+    private Long messageId;
 }

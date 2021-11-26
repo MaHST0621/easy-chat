@@ -1,8 +1,11 @@
 package com.example.easyChat.common.action;
 
+import com.example.easyChat.common.vo.UserItem;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -15,4 +18,6 @@ public class FetchOnlineUsersRespAction extends Action{
     }
 
     //TODO： 格式结合数据库表
+    private List<UserItem> users;
+
 }
