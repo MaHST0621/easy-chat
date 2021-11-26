@@ -1,7 +1,10 @@
 package com.example.easyChat.server.websocket;
 
+import com.alibaba.fastjson.JSONObject;
+import com.example.easyChat.common.action.Action;
 import com.example.easyChat.common.action.ActionEnum;
 import com.example.easyChat.common.event.EventPool;
+import com.example.easyChat.common.event.IEvent;
 import com.example.easyChat.server.connection.ConnectionPool;
 import com.example.easyChat.server.event.*;
 import io.netty.bootstrap.ServerBootstrap;
@@ -96,7 +99,20 @@ public class WebSocketServer {
             }
             TextWebSocketFrame request = (TextWebSocketFrame) o;
             System.out.println("from" + ctx.channel().remoteAddress() + " :" + request.text());
-            ctx.writeAndFlush(new TextWebSocketFrame("服务器返回: " + request.text()));
+            Action action;
+            action = JSONObject.parseObject(request.text(),Action.class);
+
+            IEvent<Action,Action> event = EventPool.getInstance().find(action.getAction());
+            if (event == null) {
+                System.out.println("this action not exist! key : " + action.getAction());
+                return;
+            }
+            Action respAction = event.handle(action,ctx.channel());
+            if ( null != respAction ) {
+                System.out.println("resp action: " + action);
+                ctx.writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(respAction)));
+            }
+
         }
     }
 

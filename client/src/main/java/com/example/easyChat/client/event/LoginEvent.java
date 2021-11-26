@@ -12,6 +12,7 @@ public class LoginEvent implements IEvent<Action,Action>{
         System.out.println("receive action:" + action);
         LoginRespAction respAction = JSONObject.parseObject(action.getPayload(),LoginRespAction.class);
         System.out.println("received login respAction:" + respAction);
+
         return null;
     }
 }
