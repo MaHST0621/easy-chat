@@ -1,13 +1,13 @@
 package com.example.easyChat.client.websocket;
 
 import com.alibaba.fastjson.JSONObject;
+import com.example.easyChat.client.handler.WebsocketHandler;
 import com.example.easyChat.common.action.Action;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -25,6 +25,8 @@ public class WebSocketClient {
 
     private ChannelPromise channelPromise;
     private Channel channel;
+
+    private WebsocketHandler myHandler;
     public WebSocketClient(final URI uri) {
         System.out.println(uri.toString());
         this.uri = uri;
@@ -34,6 +36,7 @@ public class WebSocketClient {
     public void connect(){
         try {
             channel = bootstrap.connect(uri.getHost(),uri.getPort()).sync().channel();
+            channelPromise = myHandler.getMyPromise();
             channelPromise.sync();
             System.out.println("Connected success! and handShake complete!");
         } catch (InterruptedException e) {
@@ -56,7 +59,7 @@ public class WebSocketClient {
                         ChannelPipeline pipeline = channel.pipeline();
                         pipeline.addLast(new HttpClientCodec());
                         pipeline.addLast(new HttpObjectAggregator(64*1024));
-                        pipeline.addLast(new WebsocketHandler(getHandshaker(uri)));
+                        pipeline.addLast(myHandler = new WebsocketHandler(getHandshaker(uri),channelPromise));
                     }
                     private WebSocketClientHandshaker getHandshaker(final URI uri) {
                         return WebSocketClientHandshakerFactory.newHandshaker(uri,
@@ -78,44 +81,5 @@ public class WebSocketClient {
         }
         action.setPayload(payload);
         channel.writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(action)));
-    }
-
-    private class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
-        private WebSocketClientHandshaker handshaker;
-
-        public WebsocketHandler (final WebSocketClientHandshaker handshaker) {
-            this.handshaker = handshaker;
-        }
-
-        @Override
-        public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-            channelPromise  = ctx.newPromise();
-        }
-
-        @Override
-        public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            this.handshaker.handshake(ctx.channel());
-        }
-
-        @Override
-        protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
-            System.out.println("receive data:" + o + "from address:" + ctx.channel().remoteAddress());
-            if (!handshaker.isHandshakeComplete()) {
-                try {
-                    handshaker.finishHandshake(ctx.channel(),(FullHttpResponse) o);
-                    channelPromise.setSuccess();
-                    System.out.println("handshake success!");
-                } catch (Exception e) {
-                    channelPromise.setFailure(e);
-                    e.printStackTrace();
-                }
-                return;
-            }
-            if (!(o instanceof TextWebSocketFrame)) {
-                System.out.println("no received text data:" + o);
-            }
-            TextWebSocketFrame request = (TextWebSocketFrame) o;
-            System.out.println("from" + ctx.channel().remoteAddress() + " :" + request.text());
-        }
     }
 }
