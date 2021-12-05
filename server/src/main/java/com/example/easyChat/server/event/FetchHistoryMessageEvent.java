@@ -7,6 +7,9 @@ import com.example.easyChat.common.action.FetchHistoryMessageRespAction;
 import com.example.easyChat.common.event.IEvent;
 import io.netty.channel.Channel;
 
+/**
+ * this is test
+ */
 public class FetchHistoryMessageEvent implements IEvent<Action,Action> {
     @Override
     public Action handle(Action action, Channel channel) {
