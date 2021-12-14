@@ -1,5 +1,9 @@
 package com.example.easyChat.client.handler;
 
+import com.alibaba.fastjson.JSONObject;
+import com.example.easyChat.common.action.Action;
+import com.example.easyChat.common.event.EventPool;
+import com.example.easyChat.common.event.IEvent;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -44,7 +48,18 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
             System.out.println("no received text data:" + o);
         }
         TextWebSocketFrame request = (TextWebSocketFrame) o;
-        System.out.println("from" + ctx.channel().remoteAddress() + " :" + request.text());
+        Action action;
+        action = JSONObject.parseObject(request.text(),Action.class);
+        IEvent event = EventPool.getInstance().find(action.getAction());
+        if (event == null) {
+            System.out.println("this action not exist! key : " + action.getAction());
+            return;
+        }
+        Action respAction = (Action) event.handle(action,ctx.channel());
+        if ( null != respAction ) {
+            System.out.println("resp action: " + action);
+            ctx.writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(respAction)));
+        }
     }
 
     public ChannelPromise getMyPromise() {

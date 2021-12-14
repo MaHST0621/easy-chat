@@ -3,7 +3,6 @@ package com.example.easyChat.server.event;
 import com.alibaba.fastjson.JSONObject;
 import com.example.easyChat.common.action.Action;
 import com.example.easyChat.common.action.ReceiveMessageNotifyAckAction;
-import com.example.easyChat.common.action.ReceiveMessageNotifyAction;
 import com.example.easyChat.common.event.IEvent;
 import io.netty.channel.Channel;
 
