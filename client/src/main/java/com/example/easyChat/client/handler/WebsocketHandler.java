@@ -29,17 +29,17 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
         System.out.println("receive data:" + o + "from address:" + ctx.channel().remoteAddress());
-//        if (!handshaker.isHandshakeComplete()) {
-//            try {
-//                handshaker.finishHandshake(ctx.channel(),(FullHttpResponse) o);
-//                channelPromise.setSuccess();
-//                System.out.println("handshake success!");
-//            } catch (Exception e) {
-//                channelPromise.setFailure(e);
-//                e.printStackTrace();
-//            }
-//            return;
-//        }
+        if (!handshaker.isHandshakeComplete()) {
+            try {
+                handshaker.finishHandshake(ctx.channel(),(FullHttpResponse) o);
+                channelPromise.setSuccess();
+                System.out.println("handshake success!");
+            } catch (Exception e) {
+                channelPromise.setFailure(e);
+                e.printStackTrace();
+            }
+            return;
+        }
         if (!(o instanceof TextWebSocketFrame)) {
             System.out.println("no received text data:" + o);
         }

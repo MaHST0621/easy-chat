@@ -19,7 +19,7 @@ public class LoginEvent implements IEvent<Action,Action> {
         System.out.println("receive login req action:" + reqAction);
 
         UserService userService = SpringContextUtil.getBean(UserService.class);
-        if (userService == null) System.out.println("can not find userService!");
+        if (userService == null) {System.out.println("can not find userService!");}
 
         LoginRespAction respAction = new LoginRespAction();
         respAction.setResult(false);

@@ -2,7 +2,6 @@ package com.example.easyChat.server.service;
 
 import com.example.easyChat.server.mapper.UserMapper;
 import com.example.easyChat.server.model.User;
-import com.sun.istack.internal.NotNull;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
