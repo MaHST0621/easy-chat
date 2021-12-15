@@ -9,6 +9,6 @@ public class ApplicationEventListener implements ApplicationListener<Application
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         WebSocketServer server = new WebSocketServer("/chat");
-        server.start((short) 8888);
+        server.start((short) 9999);
     }
 }
