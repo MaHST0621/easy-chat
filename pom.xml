@@ -50,6 +50,11 @@
             <version>1.2.50</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
         <!-- junit包依赖   -->
         <dependency>
             <groupId>junit</groupId>

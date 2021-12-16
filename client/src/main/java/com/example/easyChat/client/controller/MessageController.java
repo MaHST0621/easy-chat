@@ -1,23 +1,33 @@
 package com.example.easyChat.client.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
+import com.example.easyChat.client.Api.MessageService;
+import com.example.easyChat.client.ClientApplication;
+import com.example.easyChat.client.websocket.WebSocketClient;
+import com.example.easyChat.common.action.SendMessageReqAction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/message")
 public class MessageController {
-//    //登录逻辑处理
-//    //需要输入 mobile 和 passwd
-//            if (command.toLowerCase().indexOf("login") == 0) {
-//        String[] params = command.split(" ");
-//        if (params.length != 3) {
-//            System.out.println("need input your mobile and password!");
-//            continue;
-//        }
-//        login(params[1],params[2]);
-//        continue;
-//    }
 
+    @Autowired
+    MessageService messageService;
 
+    @RequestMapping("/test")
+    @ResponseBody
+    public String SendMessage(@RequestBody HashMap<String,String> map) {
+        System.out.println(map);
+        SendMessageReqAction reqAction = JSONObject.parseObject(JSONObject.toJSONString(map),SendMessageReqAction.class);
+        System.out.println(reqAction);
+        WebSocketClient client = ClientApplication.getClient();
+        return "success";
+    }
 }
