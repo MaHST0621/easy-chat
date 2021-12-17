@@ -9,9 +9,8 @@ import io.netty.channel.Channel;
 public class FetchOnlineUsersEvent implements IEvent<Action, Action> {
     @Override
     public Action handle(Action action, Channel channel) {
-        System.out.println("receive action:" + action);
         FetchOnlineUsersRespAction respAction = JSONObject.parseObject(action.getPayload(),FetchOnlineUsersRespAction.class);
-        System.out.println("receive respAction: " + respAction);
+        System.out.println(respAction.getUsers());
         return null;
     }
 }

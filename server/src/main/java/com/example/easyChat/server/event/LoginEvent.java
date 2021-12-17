@@ -40,7 +40,7 @@ public class LoginEvent implements IEvent<Action,Action> {
             System.out.println("token:  " + token);
         }
         respAction.setToken(token);
-        respAction.setPayload(JSONObject.toJSONString(reqAction));
+        respAction.setPayload(JSONObject.toJSONString(respAction));
         return respAction;
     }
 }
