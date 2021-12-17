@@ -109,7 +109,7 @@ public class WebSocketServer {
             }
             Action respAction = event.handle(action,ctx.channel());
             if ( null != respAction ) {
-                System.out.println("resp action: " + action);
+                System.out.println("server create resp action: " + action);
                 ctx.writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(respAction)));
             }
 

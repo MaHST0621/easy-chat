@@ -32,7 +32,6 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
-        System.out.println("receive data:" + o + "from address:" + ctx.channel().remoteAddress());
         if (!handshaker.isHandshakeComplete()) {
             try {
                 handshaker.finishHandshake(ctx.channel(),(FullHttpResponse) o);
@@ -57,7 +56,7 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
         }
         Action respAction = (Action) event.handle(action,ctx.channel());
         if ( null != respAction ) {
-            System.out.println("resp action: " + action);
+            System.out.println("client create resp action: " + action);
             ctx.writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(respAction)));
         }
     }

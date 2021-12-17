@@ -11,6 +11,7 @@ import com.example.easyChat.server.model.Message;
 import com.example.easyChat.server.model.User;
 import com.example.easyChat.server.service.MessageService;
 import com.example.easyChat.server.service.UserService;
+import com.example.easyChat.server.util.JWTUtil;
 import com.example.easyChat.server.util.SpringContextUtil;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -21,17 +22,19 @@ import java.util.List;
 public class  SendMessageEvent implements IEvent<Action, Action> {
     @Override
     public Action handle(Action action, Channel channel) {
-        System.out.println("send message resp: " + action);
         SendMessageReqAction reqAction = JSONObject.parseObject(action.getPayload(),SendMessageReqAction.class);
-        System.out.println("receive req: " + reqAction);
 
         SendMessageRespAction respAction = new SendMessageRespAction();
         respAction.setResult(false);
         //通过Channel获取from_user_id (校验用户，如果连接时启用了校验就不用这一步)
         //TODO: 添加登录校验 删除这一步
+        if (!JWTUtil.checkToken(reqAction.getToken())) {
+            System.out.println("token is not exist");
+            return respAction;
+        }
+
         Long from_id = ConnectionPool.getInstance().getUserIdByChannel(channel.id().asLongText());
         if (from_id == null) {
-            System.out.println("can not find userId by channel: " + channel.id().asLongText());
             respAction.setPayload(JSONObject.toJSONString(action));
             return respAction;
         }
@@ -40,7 +43,6 @@ public class  SendMessageEvent implements IEvent<Action, Action> {
         UserService userService = SpringContextUtil.getBean(UserService.class);
         User userFrom = userService.getUserById(reqAction.getFromUserId());
         if (userFrom == null) {
-            System.out.println("can not find user_from by id : " + reqAction.getFromUserId());
             respAction.setPayload(JSONObject.toJSONString(action));
             return respAction;
         }
@@ -48,7 +50,6 @@ public class  SendMessageEvent implements IEvent<Action, Action> {
         //判断to_user_id 是否存在用户信息
         User userTo = userService.getUserById(reqAction.getToUserId());
         if (userFrom == null) {
-            System.out.println("can not find user_to by id : " + reqAction.getToUserId());
             respAction.setPayload(JSONObject.toJSONString(action));
             return respAction;
         }

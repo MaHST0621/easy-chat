@@ -12,4 +12,11 @@ public class Action {
      * Jason格式
      */
     private String payload;
+
+
+    /**
+     * Token
+     */
+
+    private String token;
 }

@@ -9,6 +9,7 @@ import com.example.easyChat.common.vo.UserItem;
 import com.example.easyChat.server.connection.ConnectionPool;
 import com.example.easyChat.server.model.User;
 import com.example.easyChat.server.service.UserService;
+import com.example.easyChat.server.util.JWTUtil;
 import com.example.easyChat.server.util.SpringContextUtil;
 import io.netty.channel.Channel;
 import org.springframework.util.CollectionUtils;
@@ -19,15 +20,19 @@ import java.util.stream.Collectors;
 public class FetchOnlineUsersEvent implements IEvent<Action, Action> {
     @Override
     public Action handle(Action action, Channel channel) {
-        System.out.println("receive action:" + action);
         FetchOnlineUsersReqAction reqAction = JSONObject.parseObject(action.getPayload(),FetchOnlineUsersReqAction.class);
-        System.out.println("receive reqAction: " + reqAction);
+        FetchOnlineUsersRespAction respAction = new FetchOnlineUsersRespAction();
+        if (!JWTUtil.checkToken(reqAction.getToken())) {
+            System.out.println("token is not exist");
+            return respAction;
+        }
+
 
         List<Long> userIds = ConnectionPool.getInstance().userIdList();
         UserService userService = SpringContextUtil.getBean(UserService.class);
         List<User> users = userService.listUsers(userIds);
 
-        FetchOnlineUsersRespAction respAction = new FetchOnlineUsersRespAction();
+
         if ( !CollectionUtils.isEmpty(users)) {
             respAction.setUsers(users.stream().map(user -> {
                 UserItem userItem = new UserItem();
@@ -36,6 +41,7 @@ public class FetchOnlineUsersEvent implements IEvent<Action, Action> {
                 return userItem;
             }).collect(Collectors.toList()));
         }
+        respAction.setPayload(JSONObject.toJSONString(respAction));
         return respAction;
     }
 }
