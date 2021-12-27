@@ -22,8 +22,13 @@ import java.util.List;
 public class  SendMessageEvent implements IEvent<Action, Action> {
     @Override
     public Action handle(Action action, Channel channel) {
+        if (action == null) {
+            System.out.println("action can not be null");
+        }
+        if (channel == null) {
+            System.out.println("channel can not be null");
+        }
         SendMessageReqAction reqAction = JSONObject.parseObject(action.getPayload(),SendMessageReqAction.class);
-
         SendMessageRespAction respAction = new SendMessageRespAction();
         respAction.setResult(false);
         //通过Channel获取from_user_id (校验用户，如果连接时启用了校验就不用这一步)

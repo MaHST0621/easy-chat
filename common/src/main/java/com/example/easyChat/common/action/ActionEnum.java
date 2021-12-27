@@ -12,7 +12,9 @@ public enum ActionEnum {
     ACTION_RECEIVE_MESSAGE_NOTIFY("receive_message_notify","接收消息推送"),
     ACTION_RECEIVE_MESSAGE_Notify_ACK("receive_message_notify_ack","接收消息推送确认"),
     ACTION_FETCH_HISTORY_MESSAGE_REQ("fetch_history_message_req","获取历史消息请求"),
-    ACTION_FETCH_HISTORY_MESSAGE_RESP("fetch_history_message_resp","获取历史消息响应")
+    ACTION_FETCH_HISTORY_MESSAGE_RESP("fetch_history_message_resp","获取历史消息响应"),
+    ACTION_LIVEROOM_MESSAGE_REQ("liveroom_message_req","发送弹幕请求"),
+    ACTION_LIVEROOM_CREATE_REQ("liveroom_create_req","创建直播间请求"),
     ;
 
     @Getter

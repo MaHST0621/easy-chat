@@ -22,11 +22,19 @@ public class ConnectionPool {
     //case1:根据用户id获取链接对象的Set集合
     //userId => {channelId,channelId,channelId...}
     private ConcurrentHashMap<Long, HashSet<String>> users;
+
     //case2:根据channel的id去找到连接对象
     //channelId => {channel}
     private ConcurrentHashMap<String, Channel> channels;
+
     //channelId => userId
     private ConcurrentHashMap<String,Long> userIds;
+
+    //liveroomId => channel
+    private ConcurrentHashMap<String,Channel> liveroom_channels;
+
+    //userId => liveroomId
+    private ConcurrentHashMap<String,String> userId_liveroomId;
 
     public void add(final Long userId, final Channel channel) {
         if (userId == null) {
@@ -106,5 +114,34 @@ public class ConnectionPool {
         }
         // TODO: 找不到对应的channelId的时候，会返回空
         return channelIds.stream().map(channelId -> channels.get(channelId)).collect(Collectors.toList());
+    }
+
+
+    public void addLiveroom(final String userId,final String liveroomId,final Channel channel) {
+        if (userId == null || userId == "") {
+            System.out.println("userId is Empty!");
+            return;
+        }
+        if (liveroomId == null || liveroomId == "") {
+            System.out.println("liveroomId is Empty!");
+            return;
+        }
+        if (channel == null) {
+            System.out.println("channel is Empty!!");
+            return;
+        }
+        liveroom_channels.put(liveroomId,channel);
+        userId_liveroomId.put(userId,liveroomId);
+    }
+
+    public Channel getChannelByliveroomId(String liverommId) {
+        Channel channel = null;
+        if (liverommId == null || liverommId == "") {
+            System.out.println("查找的直播间ID不能为空");
+            return channel;
+        }
+
+        channel = liveroom_channels.get(liverommId);
+        return channel;
     }
 }

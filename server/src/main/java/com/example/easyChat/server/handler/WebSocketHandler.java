@@ -13,6 +13,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         System.out.println("connect from address:" + ctx.channel().remoteAddress());
+        ctx.writeAndFlush(new String("hello a friend"));
     }
 
     @Override
@@ -27,9 +28,9 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
             System.out.println("received a wrong type message:" + o);
         }
         TextWebSocketFrame request = (TextWebSocketFrame) o;
+        System.out.println(request.text());
         Action action;
         action = JSONObject.parseObject(request.text(),Action.class);
-
         IEvent<Action,Action> event = EventPool.getInstance().find(action.getAction());
         if (event == null) {
             System.out.println("this action not exist! key : " + action.getAction());

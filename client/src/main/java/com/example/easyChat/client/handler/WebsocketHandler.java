@@ -23,6 +23,7 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         channelPromise  = ctx.newPromise();
+        ctx.writeAndFlush("hello a friend");
     }
 
     @Override
