@@ -2,6 +2,7 @@ package com.example.easyChat.server.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.easyChat.common.action.Action;
+import com.example.easyChat.common.action.LiveroomMessageReqAction;
 import com.example.easyChat.common.event.EventPool;
 import com.example.easyChat.common.event.IEvent;
 import com.example.easyChat.server.connection.ConnectionPool;

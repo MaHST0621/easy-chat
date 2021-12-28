@@ -25,6 +25,12 @@ public class MessageLiveroomEvent implements IEvent<Action,Action> {
         if (channel == null) {
             System.out.println("channel can not be null");
         }
+        //todo 前端编写实体类
+        action.setPayload(JSONObject.toJSONString(action));
+
+        //todo 删除sout语句
+        System.out.println(action);
+        System.out.println(action.getPayload());
         LiveroomMessageReqAction reqAction = JSONObject.parseObject(action.getPayload(),LiveroomMessageReqAction.class);
         //通过Channel获取from_user_id (校验用户，如果连接时启用了校验就不用这一步)
         //TODO: 添加登录校验 删除这一步
@@ -34,16 +40,20 @@ public class MessageLiveroomEvent implements IEvent<Action,Action> {
 //        }
 
         //判断是否是已经连接的用户
-        Long from_id = ConnectionPool.getInstance().getUserIdByChannel(channel.id().asLongText());
-        if (from_id == null) {
-            System.out.println("please log in");
-            return null;
-        }
+//        Long from_id = ConnectionPool.getInstance().getUserIdByChannel(channel.id().asLongText());
+//        if (from_id == null) {
+//            System.out.println("please log in");
+//            return null;
+//        }
 
 
         //判断from_user_id 是否存在用户信息
         UserService userService = SpringContextUtil.getBean(UserService.class);
-        User userFrom = userService.getUserById(from_id);
+        System.out.println(reqAction);
+        System.out.println(reqAction.getFromId());
+        Long userId = Long.valueOf(reqAction.getFromId());
+        System.out.println(userId);
+        User userFrom = userService.getUserById(userId);
         if (userFrom == null) {
             System.out.println("没有该用户的信息");
             return null;
