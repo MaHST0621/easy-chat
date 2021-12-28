@@ -28,10 +28,10 @@ public class MessageLiveroomEvent implements IEvent<Action,Action> {
         LiveroomMessageReqAction reqAction = JSONObject.parseObject(action.getPayload(),LiveroomMessageReqAction.class);
         //通过Channel获取from_user_id (校验用户，如果连接时启用了校验就不用这一步)
         //TODO: 添加登录校验 删除这一步
-        if (!JWTUtil.checkToken(reqAction.getToken())) {
-            System.out.println("token is not exist");
-            return null;
-        }
+//        if (!JWTUtil.checkToken(reqAction.getToken())) {
+//            System.out.println("token is not exist");
+//            return null;
+//        }
 
         //判断是否是已经连接的用户
         Long from_id = ConnectionPool.getInstance().getUserIdByChannel(channel.id().asLongText());

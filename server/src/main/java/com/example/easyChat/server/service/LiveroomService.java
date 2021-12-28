@@ -20,4 +20,8 @@ public class LiveroomService {
         resLiveroom = liveroomMapper.selectByPrimaryKey(liverommId);
         return resLiveroom;
     }
+
+    public void create(Liveroom liveroom) {
+        liveroomMapper.insert(liveroom);
+    }
 }
