@@ -5,6 +5,11 @@ import lombok.ToString;
 
 import java.util.UUID;
 
+/**
+ * @author m1186
+ * @date 2022/02/17
+ * 查询在线人员请求
+ */
 @Data
 @ToString
 public class FetchOnlineUsersReqAction extends Action{

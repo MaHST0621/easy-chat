@@ -19,8 +19,13 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class WebSocketServer {
+    private Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
     //WebSocket链接路径
     @Setter
     private String contextPath;
@@ -35,8 +40,9 @@ public class WebSocketServer {
         this.init();
         this.registeEvent();
         try {
+            logger.info("尝试启动");
             ChannelFuture future = bootstrap.bind(port).sync();
-            System.out.println("Websocket started.Listen on " + port + "!");
+            logger.info("Netty服务器启动，端口为：{},路径为{}",port,contextPath);
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -1,5 +1,6 @@
 package com.example.easyChat.client.websocket;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.example.easyChat.client.handler.WebsocketHandler;
 import com.example.easyChat.common.action.Action;
@@ -14,10 +15,13 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
 public class WebSocketClient {
+    private Logger logger = LoggerFactory.getLogger(WebSocketClient.class);
     private URI uri;
 
     private Bootstrap bootstrap;
@@ -28,7 +32,6 @@ public class WebSocketClient {
 
     private WebsocketHandler myHandler;
     public WebSocketClient(final URI uri) {
-        System.out.println(uri.toString());
         this.uri = uri;
         this.init();
     }
@@ -38,7 +41,11 @@ public class WebSocketClient {
             channel = bootstrap.connect(uri.getHost(),uri.getPort()).sync().channel();
             channelPromise = myHandler.getMyPromise();
             channelPromise.sync();
-            System.out.println("Connected success! and handShake complete!");
+            if(channelPromise.isSuccess()) {
+                logger.info("客户端通过URL:{}连接成功",uri);
+            }else {
+                logger.info("客户端通过URL:{}连接失败,尝试重连",uri);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -71,14 +78,15 @@ public class WebSocketClient {
 
     public void send(Action action,String payload) {
         if (action == null) {
-            System.out.println("empty action");
+            logger.info("发送的action为空{}", JSON.toJSONString(payload));
             return;
         }
 
         if (payload == null || payload.isEmpty()) {
-            System.out.println("empty payload");
             return;
         }
+        action.setToken(WebsocketHandler.getMyToken());
+        logger.info("发送的token为:{}",WebsocketHandler.getMyToken());
         action.setPayload(payload);
         channel.writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(action)));
     }

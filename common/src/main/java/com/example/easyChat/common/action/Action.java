@@ -4,19 +4,24 @@ import lombok.Data;
 
 @Data
 public class Action {
-    private String action;
-    private String actionType;
-    private String requestId;
-
+    /**
+     * 动作类型
+     */
+    public String action;
+    /**
+     * 动作类型
+     */
+    public String actionType;
+    /**
+     * 请求ID
+     */
+    public String requestId;
+    /**
+     * Token
+     */
+    public String token;
     /**
      * Jason格式
      */
     private String payload;
-
-
-    /**
-     * Token
-     */
-
-    private String token;
 }

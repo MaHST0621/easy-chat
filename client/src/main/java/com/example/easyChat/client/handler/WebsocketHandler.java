@@ -1,5 +1,6 @@
 package com.example.easyChat.client.handler;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.example.easyChat.common.action.Action;
 import com.example.easyChat.common.event.EventPool;
@@ -10,10 +11,29 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
+    private Logger logger = LoggerFactory.getLogger(WebsocketHandler.class);
     private WebSocketClientHandshaker handshaker;
     private ChannelPromise channelPromise;
+    private static String myToken;
+
+    public static String getMyToken() {
+        if(StringUtils.isEmpty(myToken)) {
+            log.info("token还未初始化！");
+            return null;
+        }
+        return myToken;
+    }
+
+    public static void setMyToken(String token) {
+        myToken = token;
+    }
 
     public WebsocketHandler (final WebSocketClientHandshaker handshaker, ChannelPromise channelPromise) {
         this.handshaker = handshaker;
@@ -23,7 +43,6 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         channelPromise  = ctx.newPromise();
-        ctx.writeAndFlush("hello a friend");
     }
 
     @Override
@@ -37,7 +56,7 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
             try {
                 handshaker.finishHandshake(ctx.channel(),(FullHttpResponse) o);
                 channelPromise.setSuccess();
-                System.out.println("handshake success!");
+                logger.info("握手成功");
             } catch (Exception e) {
                 channelPromise.setFailure(e);
                 e.printStackTrace();
@@ -45,19 +64,19 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
             return;
         }
         if (!(o instanceof TextWebSocketFrame)) {
-            System.out.println("no received text data:" + o);
+            logger.info("接收到未知类型消息{}",o);
         }
         TextWebSocketFrame request = (TextWebSocketFrame) o;
         Action action;
         action = JSONObject.parseObject(request.text(),Action.class);
         IEvent event = EventPool.getInstance().find(action.getAction());
         if (event == null) {
-            System.out.println("this action not exist! key : " + action.getAction());
+            logger.info("{}未找到对应的事件",action.getAction());
             return;
         }
         Action respAction = (Action) event.handle(action,ctx.channel());
         if ( null != respAction ) {
-            System.out.println("client create resp action: " + action);
+            logger.info("响应信息{}", JSON.toJSONString(respAction));
             ctx.writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(respAction)));
         }
     }

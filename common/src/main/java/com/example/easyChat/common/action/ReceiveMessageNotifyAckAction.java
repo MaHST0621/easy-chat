@@ -5,6 +5,12 @@ import lombok.ToString;
 
 import java.util.UUID;
 
+
+/**
+ * @author m1186
+ * @date 2022/02/17
+ * 接收信息并成功处理响应
+ */
 @Data
 @ToString
 public class ReceiveMessageNotifyAckAction extends Action{

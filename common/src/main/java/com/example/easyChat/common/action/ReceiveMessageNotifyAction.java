@@ -5,6 +5,11 @@ import lombok.ToString;
 
 import java.util.UUID;
 
+/**
+ * @author m1186
+ * @date 2022/02/17
+ * 服务器成功落库消息响应
+ */
 @Data
 @ToString
 public class ReceiveMessageNotifyAction extends Action{
@@ -20,7 +25,7 @@ public class ReceiveMessageNotifyAction extends Action{
 
     private Long messageId;
 
-    private Byte messageType;
+    private Integer messageType;
 
     private String message;
 }

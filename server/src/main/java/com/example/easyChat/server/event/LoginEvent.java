@@ -11,33 +11,48 @@ import com.example.easyChat.server.service.UserService;
 import com.example.easyChat.server.util.JWTUtil;
 import com.example.easyChat.server.util.SpringContextUtil;
 import io.netty.channel.Channel;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+@Slf4j
 public class LoginEvent implements IEvent<Action,Action> {
     @Override
     public Action handle(Action action, Channel channel) {
-        //TODO :sout 清除
         LoginReqAction reqAction = JSONObject.parseObject(action.getPayload(),LoginReqAction.class);
-
         UserService userService = SpringContextUtil.getBean(UserService.class);
-        if (userService == null) {System.out.println("can not find userService!");}
+        if (userService == null) {
+            log.info("userService未初始化");
+        }
         LoginRespAction respAction = new LoginRespAction();
         respAction.setResult(false);
-        User user = userService.find(reqAction.getMobile(),reqAction.getPassword());
+
+        //验证登录用户额真实性
+        User user = userService.find(reqAction.getMobile());
         if (user == null) {
-            System.out.println("mobile: " + reqAction.getMobile() + "is not exist");
+            log.info("手机号为{}用户不存在",reqAction.getMobile());
             respAction.setPayload(JSONObject.toJSONString(reqAction));
             return respAction;
         }
-        System.out.println("login success by mobile: " + user.getMobile());
-        ConnectionPool.getInstance().add(user.getId(),channel);
+
+        //验证请求中是否包含密码并验证
+        if (StringUtils.isEmpty(reqAction.getPassword())) {
+            log.info("请求中不包含登录密码");
+            respAction.setPayload(JSONObject.toJSONString(reqAction));
+            return respAction;
+        }else if (!reqAction.getPassword().equals(user.getPassWord())) {
+            log.info("用户输入的密码错误{}",reqAction.getPassword());
+            respAction.setPayload(JSONObject.toJSONString(reqAction));
+            return respAction;
+        }
+        log.info("手机号为:{}的用户成功登录",reqAction.getMobile());
+
+
+        ConnectionPool.getInstance().add(user.getUId(),channel);
         respAction.setResult(true);
-        respAction.setUserId(String.valueOf(user.getId()));
+        respAction.setUserId(String.valueOf(user.getUId()));
         String token = JWTUtil.create_Token(user);
         if (StringUtils.isEmpty(token)) {
-            System.out.println("create token faild");
-        }else {
-            System.out.println("token:  " + token);
+            log.info("创建token失败");
         }
         respAction.setToken(token);
         respAction.setPayload(JSONObject.toJSONString(respAction));

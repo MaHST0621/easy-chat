@@ -5,11 +5,13 @@ import com.example.easyChat.common.action.Action;
 import com.example.easyChat.common.action.SendMessageRespAction;
 import com.example.easyChat.common.event.IEvent;
 import io.netty.channel.Channel;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SendMessageEvent implements IEvent<Action, Action> {
     @Override
     public Action handle(Action action, Channel channel) {
-        System.out.println("send message resp: " + action);
+        log.info("发送消息成功响应{}",action);
         SendMessageRespAction respAction = JSONObject.parseObject(action.getPayload(),SendMessageRespAction.class);
         return null;
     }

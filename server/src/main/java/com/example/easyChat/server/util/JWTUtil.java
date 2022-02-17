@@ -2,37 +2,43 @@ package com.example.easyChat.server.util;
 
 import com.example.easyChat.server.model.User;
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+@Slf4j
 public class JWTUtil {
     private static String signJWT = "@easy_chat###";
     private static long times_expires = 1000*60;
+    private static List<String> tokens = new ArrayList<>();
 
     public static String create_Token(User user) {
         JwtBuilder jwtBuilder = Jwts.builder();
 
         String token = jwtBuilder
-                .setHeaderParam("typ","JWT")//头部  可以不写
+                .setHeaderParam("typ","JWT")
                 .setHeaderParam("alg","HS256")
-                .claim("userId",user.getId())//数据
+                .claim("userId",user.getUId())
                 .claim("username",user.getMobile())
-                .setExpiration(new Date(System.currentTimeMillis()+times_expires))//有效期
-                .signWith(SignatureAlgorithm.HS256,signJWT)//加密
+                .setExpiration(new Date(System.currentTimeMillis()+times_expires))
+                .signWith(SignatureAlgorithm.HS256,signJWT)
                 .compact();//合成token
+        tokens.add(token);
         return token;
     }
 
-    //检查token
+    /**
+     * 检查token的真实性
+     * @param token
+     * @return
+     */
     public static boolean checkToken(String token){
         if(token == null){
+            log.info("传入的token为空");
             return false;
         }
-        try {
-            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(signJWT).parseClaimsJws(token);//获得token中的数据，没有就说明过期或者假的
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
+        return tokens.contains(token);
     }
 }

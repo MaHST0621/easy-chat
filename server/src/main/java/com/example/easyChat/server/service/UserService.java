@@ -1,8 +1,9 @@
 package com.example.easyChat.server.service;
 
-import com.example.easyChat.server.mapper.UserMapper;
+import com.example.easyChat.server.dao.UserRepository;
 import com.example.easyChat.server.model.User;
 import io.netty.util.internal.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -11,50 +12,40 @@ import tk.mybatis.mapper.entity.Example;
 import java.util.List;
 
 @Service
+@Slf4j
 public class UserService {
 
     @Autowired
-    private UserMapper userMapper;
+    private UserRepository userRepository;
+
     /**
-     * 根据mobile 和 passwd  查询用户
+     * 根据mobile 验证用户是否注册
      * @param mobile
      * @param passwd
      * @return
      */
-    public User find(final String mobile, final String passwd) {
+    public User find(final String mobile) {
         if (StringUtil.isNullOrEmpty(mobile)) {
-            System.out.println("mobile is empty!");
+            log.info("手机号为空");
             return null;
         }
-        if (StringUtil.isNullOrEmpty(passwd)) {
-            System.out.println("passwd is empty!");
-            return null;
-        }
-
-        Example example = new Example(User.class);
-        example.createCriteria()
-                .andEqualTo(User.MOBILE,mobile)
-                .andEqualTo(User.PASSWD,passwd);
-        List<User> users = userMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(users)) {
-            System.out.println("user not be find by mobile: " + mobile);
-            return null;
-        }
-        if (users.size() != 1) {
-            System.out.println("user duplicated with mobile: " + mobile + "and passwd:" + passwd);
+        User user = userRepository.getUserBymobile(mobile);
+        if (user == null) {
+            log.info("该手机号未注册");
             return null;
         }
 
-        return users.get(0);
+        return user;
     }
 
-    public List<User> listUsers(List<Long> userIds) {
-        Example example = new Example(User.class);
-        example.createCriteria().andIn(User.ID,userIds);
-        return userMapper.selectByExample(example);
-    }
 
     public User getUserById(Long fromUserId) {
-        return userMapper.selectByPrimaryKey(fromUserId);
+        return userRepository.getUserById(fromUserId);
+    }
+
+
+    public List<User> listUsers(List<Long> userIds) {
+        List<User> res = userRepository.getUsers(userIds);
+        return res;
     }
 }

@@ -6,7 +6,9 @@ import java.util.UUID;
 
 
 /**
- * 创建直播间请求
+ * @author m1186
+ * @date 2022/02/17
+ * 创建群聊请求
  */
 @Data
 public class LiveroomCreateReqAction extends Action{

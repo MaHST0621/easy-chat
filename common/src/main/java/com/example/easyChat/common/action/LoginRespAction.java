@@ -5,6 +5,11 @@ import lombok.ToString;
 
 import java.util.UUID;
 
+/**
+ * @author m1186
+ * @date 2022/02/17
+ * 登录响应
+ */
 @Data
 @ToString
 public class LoginRespAction extends Action{

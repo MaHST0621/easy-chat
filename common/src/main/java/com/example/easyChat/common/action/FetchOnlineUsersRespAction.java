@@ -20,4 +20,7 @@ public class FetchOnlineUsersRespAction extends Action{
     //TODO： 格式结合数据库表
     private List<UserItem> users;
 
+
+    private boolean result;
+
 }

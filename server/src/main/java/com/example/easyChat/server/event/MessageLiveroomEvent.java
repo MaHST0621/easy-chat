@@ -14,30 +14,21 @@ import com.example.easyChat.server.util.JWTUtil;
 import com.example.easyChat.server.util.SpringContextUtil;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class MessageLiveroomEvent implements IEvent<Action,Action> {
     @Override
     public Action handle(Action action, Channel channel) {
-        if (action == null) {
-            System.out.println("action can not be null");
-        }
-        if (channel == null) {
-            System.out.println("channel can not be null");
-        }
-        //todo 前端编写实体类
         action.setPayload(JSONObject.toJSONString(action));
 
-        //todo 删除sout语句
-        System.out.println(action);
-        System.out.println(action.getPayload());
         LiveroomMessageReqAction reqAction = JSONObject.parseObject(action.getPayload(),LiveroomMessageReqAction.class);
         //通过Channel获取from_user_id (校验用户，如果连接时启用了校验就不用这一步)
         //TODO: 添加登录校验 删除这一步
-//        if (!JWTUtil.checkToken(reqAction.getToken())) {
-//            System.out.println("token is not exist");
-//            return null;
-//        }
+        if (!JWTUtil.checkToken(action.getToken())) {
+            log.info("收到的token不存在");
+            return null;
+        }
 
         //判断是否是已经连接的用户
 //        Long from_id = ConnectionPool.getInstance().getUserIdByChannel(channel.id().asLongText());
@@ -76,13 +67,10 @@ public class MessageLiveroomEvent implements IEvent<Action,Action> {
 
         //将消息 插入到 数据库中
         Message message = new Message();
-        message.setFromId(Long.valueOf(reqAction.getFromId()));
-        message.setToId(Long.valueOf(reqAction.getLiverommId()));
+        message.setSenderId(Long.valueOf(reqAction.getFromId()));
+        message.setRecipientId(Long.valueOf(reqAction.getLiverommId()));
         message.setContent(reqAction.getMessage());
-        message.setType(Byte.valueOf(reqAction.getActionType()));
-        message.setSendTimestamp(System.currentTimeMillis());
-        message.setStatus((byte) 0);
-        message.setRecvTimestamp(0L);
+        message.setMsgType(Integer.valueOf(reqAction.getActionType()));
         MessageService messageService = SpringContextUtil.getBean(MessageService.class);
         messageService.add(message);
 

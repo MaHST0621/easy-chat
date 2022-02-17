@@ -5,6 +5,12 @@ import lombok.ToString;
 
 import java.util.UUID;
 
+
+/**
+ * @author m1186
+ * @date 2022/02/17
+ * 查询历史记录响应
+ */
 @Data
 @ToString
 public class FetchHistoryMessageRespAction extends Action{
@@ -14,6 +20,7 @@ public class FetchHistoryMessageRespAction extends Action{
         this.setRequestId(UUID.randomUUID().toString());
     }
 
-    //TODO
+    private boolean result;
 
+    //TODO
 }

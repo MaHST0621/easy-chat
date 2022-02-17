@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.easyChat.server.dao.UserRepository">
+
+    <select id="getUserById" parameterType="java.lang.Long" resultType="com.example.easyChat.server.model.User">
+        SELECT uId , userName ,mobile , passWord , avatar
+        FROM IM_USER
+        WHERE uId=#{uId}
+    </select>
+
+    <select id="getUserBymobile" parameterType="java.lang.String" resultType="com.example.easyChat.server.model.User">
+        SELECT uId , userName ,mobile , passWord , avatar
+        FROM IM_USER
+        WHERE mobile=#{mobile}
+    </select>
+
+
+    <select id="getUsers" parameterType="java.util.List" resultType="com.example.easyChat.server.model.User" >
+        SELECT *
+        FROM IM_USER
+        WHERE uId in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+</mapper>

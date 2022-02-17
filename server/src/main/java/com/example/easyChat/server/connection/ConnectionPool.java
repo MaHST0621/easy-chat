@@ -1,6 +1,8 @@
 package com.example.easyChat.server.connection;
 
 import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -8,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class ConnectionPool {
+    private Logger logger = LoggerFactory.getLogger(ConnectionPool.class);
     private static final ConnectionPool INSTANCE = new ConnectionPool();
     private ConnectionPool() {
         this.users = new ConcurrentHashMap<>();
@@ -36,13 +39,16 @@ public class ConnectionPool {
     //userId => liveroomId
     private ConcurrentHashMap<String,String> userId_liveroomId;
 
+    //userIds => {userId,userId} 在线用户ID
+    private List<Long> onlineUsers = new ArrayList<>();
+
     public void add(final Long userId, final Channel channel) {
         if (userId == null) {
-            System.out.println("userId is Empty!");
+            logger.info("连接池用户ID为空");
             return;
         }
         if (channel == null) {
-            System.out.println("channel is Empty!!");
+            logger.info("连接池用户Channel为空");
             return;
         }
         HashSet<String> channelIds = users.get(userId);
@@ -53,11 +59,12 @@ public class ConnectionPool {
         users.put(userId,channelIds);
         userIds.put(channel.id().asLongText(),userId);
         channels.put(channel.id().asLongText(),channel);
+        onlineUsers.add(userId);
     }
 
     public void removeByChannelId(final String channelId) {
         if (channelId == null || channelId.isEmpty()) {
-            System.out.println("channelId is Empty!");
+            logger.info("删除连接池ChannelID为空");
             return;
         }
         channels.remove(channelId);
@@ -65,12 +72,13 @@ public class ConnectionPool {
         if (null != userId) {
             users.remove(userId);
             userIds.remove(channelId);
+            onlineUsers.remove(userId);
         }
     }
 
     public void removeByUserId(final Long userId) {
         if (userId == null) {
-            System.out.println("userId is Empty!");
+            logger.info("删除连接池用户ID为空");
             return;
         }
         HashSet<String> channelIds = users.get(userId);
@@ -83,20 +91,11 @@ public class ConnectionPool {
         }
     }
 
-    public List<Long> userIdList() {
-        List<Long> ids = new ArrayList<>();
-        Enumeration<Long> enumeration = users.keys();
-        while (enumeration.hasMoreElements()) {
-            Long id = enumeration.nextElement();
-            ids.add(id);
-        }
-        return ids;
-    }
 
     public Long getUserIdByChannel(String channelId) {
         Long userId = userIds.get(channelId);
         if (userId == null) {
-            System.out.println("can not find userId by channel: " + channelId);
+            logger.info("该Channel_ID未绑定用户");
             return null;
         }
         return userId;
@@ -104,12 +103,12 @@ public class ConnectionPool {
 
     public List<Channel> getChannels(Long userId) {
         if ( null == userId ) {
-            System.out.println("userId is empty!");
+            logger.info("查询Channel的用户ID为空");
             return null;
         }
         HashSet<String> channelIds = users.get(userId);
         if ( CollectionUtils.isEmpty(channelIds) ) {
-            System.out.println("can not find channelIds with userId: " + userId);
+            logger.info("{}用户未绑定Channel",userId);
             return null;
         }
         // TODO: 找不到对应的channelId的时候，会返回空
@@ -119,15 +118,15 @@ public class ConnectionPool {
 
     public void addLiveroom(final String userId,final String liveroomId,final Channel channel) {
         if (userId == null || userId == "") {
-            System.out.println("userId is Empty!");
+            logger.info("连接池加入用户ID为空");
             return;
         }
         if (liveroomId == null || liveroomId == "") {
-            System.out.println("liveroomId is Empty!");
+            logger.info("连接池加入直播间ID为空");
             return;
         }
         if (channel == null) {
-            System.out.println("channel is Empty!!");
+            logger.info("连接池加入Channel为空");
             return;
         }
         liveroom_channels.put(liveroomId,channel);
@@ -137,11 +136,15 @@ public class ConnectionPool {
     public Channel getChannelByliveroomId(String liverommId) {
         Channel channel = null;
         if (liverommId == null || liverommId == "") {
-            System.out.println("查找的直播间ID不能为空");
+            logger.info("连接池查找的Channel_ID为空");
             return channel;
         }
 
         channel = liveroom_channels.get(liverommId);
         return channel;
+    }
+
+    public List<Long> getOnlineUsers() {
+        return new ArrayList<>(onlineUsers);
     }
 }

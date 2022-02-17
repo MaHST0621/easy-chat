@@ -5,7 +5,9 @@ import lombok.Data;
 import java.util.UUID;
 
 /**
- * 发送弹幕请求
+ * @author m1186
+ * @date 2022/02/17
+ * 发送群聊消息请求
  */
 
 @Data
