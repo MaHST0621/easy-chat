@@ -7,7 +7,7 @@ import com.example.easyChat.common.action.LoginRespAction;
 import com.example.easyChat.common.event.IEvent;
 import com.example.easyChat.server.connection.ConnectionPool;
 import com.example.easyChat.server.model.User;
-import com.example.easyChat.server.service.UserService;
+import com.example.easyChat.server.service.impl.UserServiceImp;
 import com.example.easyChat.server.util.JWTUtil;
 import com.example.easyChat.server.util.SpringContextUtil;
 import io.netty.channel.Channel;
@@ -19,7 +19,7 @@ public class LoginEvent implements IEvent<Action,Action> {
     @Override
     public Action handle(Action action, Channel channel) {
         LoginReqAction reqAction = JSONObject.parseObject(action.getPayload(),LoginReqAction.class);
-        UserService userService = SpringContextUtil.getBean(UserService.class);
+        UserServiceImp userService = SpringContextUtil.getBean(UserServiceImp.class);
         if (userService == null) {
             log.info("userService未初始化");
         }

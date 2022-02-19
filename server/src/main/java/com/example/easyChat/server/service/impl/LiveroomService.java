@@ -1,4 +1,4 @@
-package com.example.easyChat.server.service;
+package com.example.easyChat.server.service.impl;
 
 import com.example.easyChat.server.model.Liveroom;
 import org.springframework.stereotype.Service;

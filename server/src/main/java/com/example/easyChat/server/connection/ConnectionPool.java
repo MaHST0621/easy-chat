@@ -1,12 +1,15 @@
 package com.example.easyChat.server.connection;
 
 import io.netty.channel.Channel;
+import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class ConnectionPool {
@@ -42,6 +45,12 @@ public class ConnectionPool {
     //userIds => {userId,userId} 在线用户ID
     private List<Long> onlineUsers = new ArrayList<>();
 
+    //消息SEQ
+    public static final AttributeKey<AtomicLong> TID_GENERATOR = AttributeKey.valueOf("tid_generator");
+
+    //未收ACK的包
+    public static final AttributeKey<ConcurrentHashMap> NON_ACKED_MAP = AttributeKey.valueOf("non_acked_map");
+
     public void add(final Long userId, final Channel channel) {
         if (userId == null) {
             logger.info("连接池用户ID为空");
@@ -60,6 +69,8 @@ public class ConnectionPool {
         userIds.put(channel.id().asLongText(),userId);
         channels.put(channel.id().asLongText(),channel);
         onlineUsers.add(userId);
+        channel.attr(TID_GENERATOR).set(new AtomicLong(0));
+        channel.attr(NON_ACKED_MAP).set(new ConcurrentHashMap<Long,String>());
     }
 
     public void removeByChannelId(final String channelId) {
@@ -146,5 +157,29 @@ public class ConnectionPool {
 
     public List<Long> getOnlineUsers() {
         return new ArrayList<>(onlineUsers);
+    }
+
+    public ConcurrentHashMap getNonAckMap(final Channel channel) {
+        return channel.attr(NON_ACKED_MAP).get();
+    }
+
+    public void addNonAcks(final Channel channel,final Long tId,final String msg) {
+        channel.attr(NON_ACKED_MAP).get().put(tId,msg);
+    }
+
+    public boolean checkContainsId(final Channel channel,final Long tId) {
+        return channel.attr(NON_ACKED_MAP).get().containsKey(tId);
+    }
+
+    public AtomicLong getTidGeneritor(final Channel channel) {
+        return channel.attr(TID_GENERATOR).get();
+    }
+
+    public void checkAndDelAck(final Channel channel,Long tId) {
+        if(!checkContainsId(channel,tId)) {
+            logger.info("{}该ACK_SEQ不存在");
+            return;
+        }
+        channel.attr(NON_ACKED_MAP).get().remove(tId);
     }
 }

@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory;
 
 public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
     private Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
+
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         logger.info("新加入连接，IP为{}",ctx.channel().remoteAddress());
-        ctx.writeAndFlush(new String("hello a friend"));
     }
 
     @Override
@@ -44,6 +44,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
             logger.info("服务器响应{}", JSON.toJSONString(respAction));
             ctx.writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(respAction)));
         }
-
     }
+
+
 }

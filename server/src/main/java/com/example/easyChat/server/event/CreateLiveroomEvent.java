@@ -5,7 +5,7 @@ import com.example.easyChat.common.action.Action;
 import com.example.easyChat.common.action.LiveroomCreateReqAction;
 import com.example.easyChat.common.event.IEvent;
 import com.example.easyChat.server.model.Liveroom;
-import com.example.easyChat.server.service.LiveroomService;
+import com.example.easyChat.server.service.impl.LiveroomService;
 import com.example.easyChat.server.util.SpringContextUtil;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;

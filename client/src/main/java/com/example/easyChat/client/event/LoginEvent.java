@@ -19,7 +19,11 @@ public class LoginEvent implements IEvent<Action,Action>{
     @Override
     public Action handle(Action action, Channel channel) {
         LoginRespAction respAction = JSONObject.parseObject(action.getPayload(),LoginRespAction.class);
-        log.info("收到登录响应{},token为{}",respAction,action.getToken());
+        if(respAction.getResult() == false) {
+            log.info("登录失败");
+            return null;
+        }
+        log.info("登录成功");
         WebsocketHandler.setMyToken(action.getToken());
         return null;
     }

@@ -8,7 +8,7 @@ import com.example.easyChat.common.event.IEvent;
 import com.example.easyChat.common.vo.UserItem;
 import com.example.easyChat.server.connection.ConnectionPool;
 import com.example.easyChat.server.model.User;
-import com.example.easyChat.server.service.UserService;
+import com.example.easyChat.server.service.impl.UserServiceImp;
 import com.example.easyChat.server.util.JWTUtil;
 import com.example.easyChat.server.util.SpringContextUtil;
 import io.netty.channel.Channel;
@@ -32,7 +32,7 @@ public class FetchOnlineUsersEvent implements IEvent<Action, Action> {
 
 
         List<Long> userIds = ConnectionPool.getInstance().getOnlineUsers();
-        UserService userService = SpringContextUtil.getBean(UserService.class);
+        UserServiceImp userService = SpringContextUtil.getBean(UserServiceImp.class);
         List<User> users = userService.listUsers(userIds);
 
 

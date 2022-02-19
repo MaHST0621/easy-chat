@@ -67,6 +67,7 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
             logger.info("接收到未知类型消息{}",o);
         }
         TextWebSocketFrame request = (TextWebSocketFrame) o;
+        log.info("收到消息{}",o);
         Action action;
         action = JSONObject.parseObject(request.text(),Action.class);
         IEvent event = EventPool.getInstance().find(action.getAction());

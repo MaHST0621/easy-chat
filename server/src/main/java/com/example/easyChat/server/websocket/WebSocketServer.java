@@ -57,10 +57,10 @@ public class WebSocketServer {
         EventPool.getInstance().registe(ActionEnum.ACTION_LOGIN_REQ.getAction(), new LoginEvent());
         EventPool.getInstance().registe(ActionEnum.ACTION_FETCH_ONLINE_USER_REQ.getAction(), new FetchOnlineUsersEvent());
         EventPool.getInstance().registe(ActionEnum.ACTION_SEND_MESSAGE_REQ.getAction(), new SendMessageEvent());
-        EventPool.getInstance().registe(ActionEnum.ACTION_RECEIVE_MESSAGE_Notify_ACK.getAction(), new RecieveMessageEvent());
         EventPool.getInstance().registe(ActionEnum.ACTION_FETCH_HISTORY_MESSAGE_REQ.getAction(), new FetchHistoryMessageEvent());
         EventPool.getInstance().registe(ActionEnum.ACTION_LIVEROOM_MESSAGE_REQ.getAction(), new MessageLiveroomEvent());
         EventPool.getInstance().registe(ActionEnum.ACTION_LIVEROOM_CREATE_REQ.getAction(), new CreateLiveroomEvent());
+        EventPool.getInstance().registe(ActionEnum.ACTION_RECEIVE_MESSAGE_Notify_ACK.getAction(),new RecieveAckMessage());
     }
 
     private void init() {

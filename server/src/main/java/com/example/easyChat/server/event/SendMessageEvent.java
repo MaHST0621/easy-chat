@@ -6,22 +6,29 @@ import com.example.easyChat.common.action.ReceiveMessageNotifyAction;
 import com.example.easyChat.common.action.SendMessageReqAction;
 import com.example.easyChat.common.action.SendMessageRespAction;
 import com.example.easyChat.common.event.IEvent;
+import com.example.easyChat.server.Constants;
 import com.example.easyChat.server.connection.ConnectionPool;
 import com.example.easyChat.server.model.Message;
 import com.example.easyChat.server.model.User;
-import com.example.easyChat.server.service.MessageService;
-import com.example.easyChat.server.service.UserService;
+import com.example.easyChat.server.service.impl.MessageServiceImp;
+import com.example.easyChat.server.service.impl.UserServiceImp;
 import com.example.easyChat.server.util.JWTUtil;
 import com.example.easyChat.server.util.SpringContextUtil;
+import com.example.easyChat.server.vo.MessageVO;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.concurrent.*;
 
+/**
+ * @author m1186
+ */
 @Slf4j
 public class  SendMessageEvent implements IEvent<Action, Action> {
+    ExecutorService ownThreadPool = new ThreadPoolExecutor(2,4,20, TimeUnit.SECONDS,new LinkedBlockingQueue());
     @Override
     public Action handle(Action action, Channel channel) {
         if (action == null) {
@@ -46,8 +53,14 @@ public class  SendMessageEvent implements IEvent<Action, Action> {
             return respAction;
         }
 
+        if(!ConnectionPool.getInstance().getOnlineUsers().contains(from_id)) {
+            log.info("未登录ID{}",from_id);
+            respAction.setPayload(JSONObject.toJSONString(action));
+            return respAction;
+        }
+
         //判断from_user_id 是否存在用户信息
-        UserService userService = SpringContextUtil.getBean(UserService.class);
+        UserServiceImp userService = SpringContextUtil.getBean(UserServiceImp.class);
         User userFrom = userService.getUserById(from_id);
         log.info("用户信息：{}",userFrom);
         if (userFrom == null) {
@@ -70,29 +83,21 @@ public class  SendMessageEvent implements IEvent<Action, Action> {
         message.setRecipientId(reqAction.getToUserId());
         message.setContent(reqAction.getMessage());
         message.setMsgType(Integer.valueOf(reqAction.getMessageType()));
-        MessageService messageService = SpringContextUtil.getBean(MessageService.class);
-        messageService.add(message);
+        MessageServiceImp messageService = SpringContextUtil.getBean(MessageServiceImp.class);
+        //异步落库
+        FutureTask futureTask = new FutureTask(new Callable() {
+            @Override
+            public Object call() throws Exception {
+                messageService.add(message);
+                return null;
+            }
+        });
+        ownThreadPool.submit(futureTask);
 
         // Tips: 可选项。如果在线，就是接收，不在线就是离线消息
-        // 找到接收方的链接对象
-        // 发送消息
-        List<Channel> channels = ConnectionPool.getInstance().getChannels(userTo.getUId());
-        if ( !CollectionUtils.isEmpty(channels) ) {
-            ReceiveMessageNotifyAction notifyAction = new ReceiveMessageNotifyAction();
-            notifyAction.setFromUserId(from_id);
-            notifyAction.setMessageId(message.getMId());
-            notifyAction.setMessageType(message.getMsgType());
-            notifyAction.setMessage(message.getContent());
-            notifyAction.setMobile(userFrom.getMobile());
-            notifyAction.setPayload(JSONObject.toJSONString(notifyAction));
-            channels.stream().forEach(toChannel -> {
-                if ( null == toChannel ) {
-                    log.info("接收方Channel为空");
-                    return ;
-                }
-                toChannel.writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(notifyAction)));
-            });
-        }
+        // 将消息发布到redis
+        messageService.publicMessage(message);
+
         // 返回发送结果
         respAction.setMessageId(message.getMId());
         respAction.setResult(true);

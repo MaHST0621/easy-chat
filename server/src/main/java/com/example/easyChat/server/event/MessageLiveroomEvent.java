@@ -7,9 +7,9 @@ import com.example.easyChat.server.connection.ConnectionPool;
 import com.example.easyChat.server.model.Liveroom;
 import com.example.easyChat.server.model.Message;
 import com.example.easyChat.server.model.User;
-import com.example.easyChat.server.service.LiveroomService;
-import com.example.easyChat.server.service.MessageService;
-import com.example.easyChat.server.service.UserService;
+import com.example.easyChat.server.service.impl.LiveroomService;
+import com.example.easyChat.server.service.impl.MessageServiceImp;
+import com.example.easyChat.server.service.impl.UserServiceImp;
 import com.example.easyChat.server.util.JWTUtil;
 import com.example.easyChat.server.util.SpringContextUtil;
 import io.netty.channel.Channel;
@@ -39,7 +39,7 @@ public class MessageLiveroomEvent implements IEvent<Action,Action> {
 
 
         //判断from_user_id 是否存在用户信息
-        UserService userService = SpringContextUtil.getBean(UserService.class);
+        UserServiceImp userService = SpringContextUtil.getBean(UserServiceImp.class);
         System.out.println(reqAction);
         System.out.println(reqAction.getFromId());
         Long userId = Long.valueOf(reqAction.getFromId());
@@ -71,8 +71,8 @@ public class MessageLiveroomEvent implements IEvent<Action,Action> {
         message.setRecipientId(Long.valueOf(reqAction.getLiverommId()));
         message.setContent(reqAction.getMessage());
         message.setMsgType(Integer.valueOf(reqAction.getActionType()));
-        MessageService messageService = SpringContextUtil.getBean(MessageService.class);
-        messageService.add(message);
+        MessageServiceImp messageServiceImp = SpringContextUtil.getBean(MessageServiceImp.class);
+        messageServiceImp.add(message);
 
         // 发送消息
         toChannel.writeAndFlush(new TextWebSocketFrame(reqAction.getMessage()));
