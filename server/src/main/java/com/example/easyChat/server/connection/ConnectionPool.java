@@ -8,7 +8,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -103,7 +102,7 @@ public class ConnectionPool {
     }
 
 
-    public Long getUserIdByChannel(String channelId) {
+    public Long getUserIdByChannelId(String channelId) {
         Long userId = userIds.get(channelId);
         if (userId == null) {
             logger.info("该Channel_ID未绑定用户");

@@ -2,25 +2,20 @@ package com.example.easyChat.server.event;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.easyChat.common.action.Action;
-import com.example.easyChat.common.action.ReceiveMessageNotifyAction;
 import com.example.easyChat.common.action.SendMessageReqAction;
 import com.example.easyChat.common.action.SendMessageRespAction;
 import com.example.easyChat.common.event.IEvent;
-import com.example.easyChat.server.Constants;
 import com.example.easyChat.server.connection.ConnectionPool;
 import com.example.easyChat.server.model.Message;
+import com.example.easyChat.server.model.OfflineMessage;
 import com.example.easyChat.server.model.User;
 import com.example.easyChat.server.service.impl.MessageServiceImp;
 import com.example.easyChat.server.service.impl.UserServiceImp;
 import com.example.easyChat.server.util.JWTUtil;
 import com.example.easyChat.server.util.SpringContextUtil;
-import com.example.easyChat.server.vo.MessageVO;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
 
-import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -46,7 +41,7 @@ public class  SendMessageEvent implements IEvent<Action, Action> {
             return respAction;
         }
 
-        Long from_id = ConnectionPool.getInstance().getUserIdByChannel(channel.id().asLongText());
+        Long from_id = ConnectionPool.getInstance().getUserIdByChannelId(channel.id().asLongText());
         if (from_id == null) {
             log.info("发送者ID为空");
             respAction.setPayload(JSONObject.toJSONString(action));
@@ -77,6 +72,7 @@ public class  SendMessageEvent implements IEvent<Action, Action> {
             return respAction;
         }
 
+
         //将消息 插入到 数据库中
         Message message = new Message();
         message.setSenderId(from_id);
@@ -84,19 +80,24 @@ public class  SendMessageEvent implements IEvent<Action, Action> {
         message.setContent(reqAction.getMessage());
         message.setMsgType(Integer.valueOf(reqAction.getMessageType()));
         MessageServiceImp messageService = SpringContextUtil.getBean(MessageServiceImp.class);
+
+        boolean onlineResult = ConnectionPool.getInstance().getOnlineUsers().contains(userTo.getUId());
         //异步落库
+        //判断是否要进行离线存储
         FutureTask futureTask = new FutureTask(new Callable() {
             @Override
-            public Object call() throws Exception {
-                messageService.add(message);
+            public Long call() throws Exception {
+                messageService.add(message,onlineResult);
                 return null;
             }
         });
         ownThreadPool.submit(futureTask);
 
-        // Tips: 可选项。如果在线，就是接收，不在线就是离线消息
-        // 将消息发布到redis
-        messageService.publicMessage(message);
+        // Tips: 可选项。如果在线，就是接收，不在线就是离线消息(消息状态为-1)
+        if (onlineResult) {
+            // 将消息发布到redis
+            messageService.publicMessage(message);
+        }
 
         // 返回发送结果
         respAction.setMessageId(message.getMId());

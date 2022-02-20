@@ -7,6 +7,8 @@ import com.example.easyChat.common.action.LoginRespAction;
 import com.example.easyChat.common.event.IEvent;
 import com.example.easyChat.server.connection.ConnectionPool;
 import com.example.easyChat.server.model.User;
+import com.example.easyChat.server.service.MessageService;
+import com.example.easyChat.server.service.impl.MessageServiceImp;
 import com.example.easyChat.server.service.impl.UserServiceImp;
 import com.example.easyChat.server.util.JWTUtil;
 import com.example.easyChat.server.util.SpringContextUtil;
@@ -56,6 +58,11 @@ public class LoginEvent implements IEvent<Action,Action> {
         }
         respAction.setToken(token);
         respAction.setPayload(JSONObject.toJSONString(respAction));
+
+        //离线过程中的加持服务
+        MessageServiceImp messageServiceImp = SpringContextUtil.getBean(MessageServiceImp.class);
+        messageServiceImp.checkOfflineMessage(user.getUId());
+
         return respAction;
     }
 }

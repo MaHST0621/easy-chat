@@ -25,7 +25,7 @@ public interface MessageService {
      * @return
      */
     @Transactional
-    Long add(Message message);
+    Long add(Message message,boolean messageStatus);
 
     /**
      * 查找聊天记录
@@ -33,7 +33,7 @@ public interface MessageService {
      * @param otherId
      * @return
      */
-    List<MessageRelation> fetchHistory(Long userId, Long otherId);
+    List<String> fetchHistory(Long userId, Long otherId);
 
 
     /**
@@ -41,4 +41,10 @@ public interface MessageService {
      * @param message
      */
     void publicMessage(Message message);
+
+    /**
+     * 获取是否有离线消息
+     * @param userId
+     */
+    void checkOfflineMessage(Long userId);
 }

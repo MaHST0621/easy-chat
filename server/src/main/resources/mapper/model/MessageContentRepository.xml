@@ -13,4 +13,13 @@
         INSERT INTO IM_MESSAGE_CONTENT (mId,content,senderId,recipientId,msgType,createTime)
         VALUES (#{mId},#{content},#{senderId},#{recipientId},#{msgType},NOW())
     </insert>
+
+    <select id="getMessages" parameterType="java.util.List" resultType="com.example.easyChat.server.model.Message" >
+        SELECT *
+        FROM IM_MESSAGE_CONTENT
+        WHERE mId in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

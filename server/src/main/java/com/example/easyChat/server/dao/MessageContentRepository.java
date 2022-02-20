@@ -3,6 +3,8 @@ package com.example.easyChat.server.dao;
 import com.example.easyChat.server.model.Message;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * @description:
  * @author：异想天开的咸鱼
@@ -22,4 +24,11 @@ public interface MessageContentRepository {
      * @param message
      */
     Long insert(Message message);
+
+    /**
+     * 消息
+     * @param ids 查询消息ID
+     * @return
+     */
+    List<Message> getMessages(List<Long> ids);
 }

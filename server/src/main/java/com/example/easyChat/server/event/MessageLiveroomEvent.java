@@ -72,7 +72,7 @@ public class MessageLiveroomEvent implements IEvent<Action,Action> {
         message.setContent(reqAction.getMessage());
         message.setMsgType(Integer.valueOf(reqAction.getActionType()));
         MessageServiceImp messageServiceImp = SpringContextUtil.getBean(MessageServiceImp.class);
-        messageServiceImp.add(message);
+        messageServiceImp.add(message,true);
 
         // 发送消息
         toChannel.writeAndFlush(new TextWebSocketFrame(reqAction.getMessage()));

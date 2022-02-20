@@ -18,9 +18,6 @@ public class ReceiveMessageNotifyAction extends Action{
         this.setAction(ActionEnum.ACTION_RECEIVE_MESSAGE_NOTIFY.getAction());
         this.setRequestId(UUID.randomUUID().toString());
     }
-
-    private String mobile;
-
     private Long fromUserId;
 
     private Long messageId;

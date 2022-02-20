@@ -24,7 +24,6 @@ public class FetchOnlineUsersEvent implements IEvent<Action, Action> {
     public Action handle(Action action, Channel channel) {
         FetchOnlineUsersReqAction reqAction = JSONObject.parseObject(action.getPayload(),FetchOnlineUsersReqAction.class);
         FetchOnlineUsersRespAction respAction = new FetchOnlineUsersRespAction();
-        //todo: 只能从Action中获取token，不能从子类中获取
         if (!JWTUtil.checkToken(action.getToken())) {
             log.info("传入的token为:",reqAction.getToken());
             return respAction;

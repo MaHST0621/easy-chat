@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.easyChat.server.dao.OfflineMessageRepository">
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="mId">
+        INSERT INTO IM_OFFLINE_MESSAGE_CONTENT (mId,content,senderId,recipientId,msgType,createTime)
+        VALUES (#{mId},#{content},#{senderId},#{recipientId},#{msgType},NOW())
+    </insert>
+
+    <select id="getMessages" parameterType="java.util.List" resultType="com.example.easyChat.server.model.OfflineMessage" >
+        SELECT *
+        FROM IM_OFFLINE_MESSAGE_CONTENT
+        WHERE recipientId=#{userId}
+    </select>
+</mapper>

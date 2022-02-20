@@ -3,6 +3,7 @@ package com.example.easyChat.common.action;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -22,5 +23,6 @@ public class FetchHistoryMessageRespAction extends Action{
 
     private boolean result;
 
-    //TODO
+
+    private List<String> messages;
 }

@@ -12,10 +12,7 @@
     <select id="fetchHistory" parameterType="java.lang.Long" resultType="com.example.easyChat.server.model.MessageRelation">
         SELECT *
         FROM IM_MESSAGE_RELATION
-        WHERE uId IN
-        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+        WHERE ownerId=#{userId} AND otherId=#{otherId}
     </select>
 
 </mapper>
