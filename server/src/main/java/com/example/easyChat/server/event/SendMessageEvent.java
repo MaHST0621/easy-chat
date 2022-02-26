@@ -12,6 +12,7 @@ import com.example.easyChat.server.model.User;
 import com.example.easyChat.server.service.impl.MessageServiceImp;
 import com.example.easyChat.server.service.impl.UserServiceImp;
 import com.example.easyChat.server.util.JWTUtil;
+import com.example.easyChat.server.util.SensitiveFilter;
 import com.example.easyChat.server.util.SpringContextUtil;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,9 @@ public class  SendMessageEvent implements IEvent<Action, Action> {
             return respAction;
         }
 
-
+        //过滤敏感词
+        SensitiveFilter sensitiveFilter = SpringContextUtil.getBean(SensitiveFilter.class);
+        reqAction.setMessage(sensitiveFilter.filter(reqAction.getMessage()));
         //将消息 插入到 数据库中
         Message message = new Message();
         message.setSenderId(from_id);
